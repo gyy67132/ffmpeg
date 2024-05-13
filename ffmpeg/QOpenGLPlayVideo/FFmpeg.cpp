@@ -74,7 +74,7 @@ void FFmpeg::flip_frame_vertical(AVFrame *frame) {
 	int linesize = frame->linesize[0];
 	uint8_t *tmp = (uint8_t *)av_malloc(linesize);
 	int height = frame->height;
-	int width = frame->width;
+	int width = 3*frame->width;
 
 	for (int y = 0; y < height / 2; y++) {
 		for (int x = 0; x < width; x++) {

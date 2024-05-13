@@ -15,9 +15,8 @@ class OpenGLWidget  : public QOpenGLWidget , public QOpenGLFunctions
 public:
 	OpenGLWidget(QWidget *parent);
 	~OpenGLWidget();
-
-	void setImage(QImage);
-	void setImage(AVFrame *image);
+	void setImage(QImage image);
+	void setImage(AVFrame* image);
 protected:
 	void initializeGL() override;
 	void paintGL() override;

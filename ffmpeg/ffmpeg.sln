@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QLabelPlayVideo2", "QLabelP
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QOpenGLPlayVideo", "QOpenGLPlayVideo\QOpenGLPlayVideo.vcxproj", "{3C0AE318-2C7D-43CC-B56D-7C00F4BD64F0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLPlayYUV", "GLPlayYUV\GLPlayYUV.vcxproj", "{99E0B1F3-D285-45BC-912D-E77649A2CA6B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,10 @@ Global
 		{3C0AE318-2C7D-43CC-B56D-7C00F4BD64F0}.Debug|x64.Build.0 = Debug|x64
 		{3C0AE318-2C7D-43CC-B56D-7C00F4BD64F0}.Release|x64.ActiveCfg = Release|x64
 		{3C0AE318-2C7D-43CC-B56D-7C00F4BD64F0}.Release|x64.Build.0 = Release|x64
+		{99E0B1F3-D285-45BC-912D-E77649A2CA6B}.Debug|x64.ActiveCfg = Debug|x64
+		{99E0B1F3-D285-45BC-912D-E77649A2CA6B}.Debug|x64.Build.0 = Debug|x64
+		{99E0B1F3-D285-45BC-912D-E77649A2CA6B}.Release|x64.ActiveCfg = Release|x64
+		{99E0B1F3-D285-45BC-912D-E77649A2CA6B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
