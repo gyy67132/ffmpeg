@@ -17,6 +17,7 @@ public:
 	~OpenGLWidget();
 
 	void setImage(QImage);
+	void setImage(AVFrame *image);
 protected:
 	void initializeGL() override;
 	void paintGL() override;

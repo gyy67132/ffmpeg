@@ -16,6 +16,7 @@ class FFmpeg  : public QObject
 public:
 	FFmpeg(QObject *parent);
 	~FFmpeg();
+	static void flip_frame_vertical(AVFrame *frame);
 
 protected:
 	void timerEvent(QTimerEvent *event) override;

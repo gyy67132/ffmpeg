@@ -28,9 +28,9 @@ void QOpenGLPlayVideo::updateFrame(AVFrame *frame)
 	{
 		QImage image3(frame->data[0], frame->width, frame->height, QImage::Format_RGB888);
 		ui.label_3->setPixmap(QPixmap::fromImage(image3));
-
-		ui.openGLWidget->setImage(image3);
 	}
+	FFmpeg::flip_frame_vertical(frame);
+	ui.openGLWidget->setImage(frame);
 
 	repaint();
 }

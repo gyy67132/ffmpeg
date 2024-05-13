@@ -82,9 +82,19 @@ void OpenGLWidget::resizeGL(int w, int h)
 }
 void OpenGLWidget::setImage(QImage image)
 {
+	image = image.mirrored(false, true);
 	makeCurrent();
 	glBindTexture(GL_TEXTURE_2D, texture);
-	//glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.bits());
 	doneCurrent();
+	update();
+}
+
+void OpenGLWidget::setImage(AVFrame *frame)
+{
+	makeCurrent();
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame->width, frame->height, 0, GL_RGB, GL_UNSIGNED_BYTE, frame->data[0]);
+	doneCurrent();
+	update();
 }

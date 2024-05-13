@@ -1,5 +1,6 @@
 #include "FFmpeg.h"
 
+
 FFmpeg::FFmpeg(QObject *parent)
 	: QObject(parent)
 {
@@ -58,6 +59,7 @@ void FFmpeg::timerEvent(QTimerEvent *event)
 			while (avcodec_receive_frame(avCodecCtx, frame) == 0)
 			{
 				sws_scale(sws_ctx, (const uint8_t * const *)frame->data, frame->linesize, 0, avCodecCtx->height, frame2->data, frame2->linesize);
+				
 				emit newFrame(frame2);
 			}
 		}
@@ -65,4 +67,24 @@ void FFmpeg::timerEvent(QTimerEvent *event)
 	}
 
 	QObject::timerEvent(event);
+}
+
+// 垂直翻转函数
+void FFmpeg::flip_frame_vertical(AVFrame *frame) {
+	int linesize = frame->linesize[0];
+	uint8_t *tmp = (uint8_t *)av_malloc(linesize);
+	int height = frame->height;
+	int width = frame->width;
+
+	for (int y = 0; y < height / 2; y++) {
+		for (int x = 0; x < width; x++) {
+			int src_index = y * linesize + x;
+			int dst_index = (height - 1 - y) * linesize + x;
+			// 交换像素数据
+			tmp[0] = frame->data[0][src_index];
+			frame->data[0][src_index] = frame->data[0][dst_index];
+			frame->data[0][dst_index] = tmp[0];
+		}
+	}
+	av_free(tmp);
 }
