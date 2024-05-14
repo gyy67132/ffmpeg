@@ -16,8 +16,7 @@ public:
 	OpenGLWidget(QWidget *parent);
 	~OpenGLWidget();
 
-	void setImage(QImage);
-	void setImage(AVFrame *image);
+	void updateYUV(AVFrame* image);
 protected:
 	void initializeGL() override;
 	void paintGL() override;
@@ -26,6 +25,6 @@ protected:
 private:
 	QOpenGLBuffer vbo;
 	QOpenGLShaderProgram shaderProgram;
-	GLuint texture;
-	//QOpenGLTexture texture;
+	GLuint texture[3];
+	AVFrame* avFrame = nullptr;
 };
