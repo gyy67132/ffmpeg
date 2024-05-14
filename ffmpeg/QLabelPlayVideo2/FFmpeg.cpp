@@ -29,11 +29,11 @@ FFmpeg::FFmpeg(QObject *parent)
 	frame2 = av_frame_alloc();
 	frame2->width = avCodecCtx->width;
 	frame2->height = avCodecCtx->height;
-	frame2->format = AV_PIX_FMT_YUV420P;
+	frame2->format = AV_PIX_FMT_RGB24;
 	av_frame_get_buffer(frame2, 1);
 
 	sws_ctx = sws_getContext(avCodecCtx->width, avCodecCtx->height, avCodecCtx->pix_fmt, avCodecCtx->width, avCodecCtx->height, 
-		AV_PIX_FMT_YUV420P,SWS_BILINEAR, NULL, NULL, NULL);
+		AV_PIX_FMT_RGB24,SWS_BILINEAR, NULL, NULL, NULL);
 	avpacket = av_packet_alloc();
 
 	startTimer(15);
