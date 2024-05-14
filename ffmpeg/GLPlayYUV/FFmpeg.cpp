@@ -3,7 +3,6 @@
 FFmpeg::FFmpeg(QObject *parent)
 	: QObject(parent)
 {
-	
 	if (0 != avformat_open_input(&avf, "./11.mp4", NULL, NULL))
 		return;
 	if (avformat_find_stream_info(avf, NULL) < 0)
@@ -16,26 +15,21 @@ FFmpeg::FFmpeg(QObject *parent)
 	AVCodecParameters *avcodecP = avf->streams[streamIndex]->codecpar;
 	if (!avcodecP)
 		return;
-
 	const AVCodec *pCodec = avcodec_find_decoder(avcodecP->codec_id);
-
 	avCodecCtx = avcodec_alloc_context3(pCodec);
-
 	avcodec_parameters_to_context(avCodecCtx, avcodecP);
-
 	avcodec_open2(avCodecCtx, pCodec, NULL);
 
 	frame = av_frame_alloc();
 	frame2 = av_frame_alloc();
 	frame2->width = avCodecCtx->width;
 	frame2->height = avCodecCtx->height;
-	frame2->format = AV_PIX_FMT_RGB24;
+	frame2->format = AV_PIX_FMT_YUV420P;
 	av_frame_get_buffer(frame2, 1);
 
 	sws_ctx = sws_getContext(avCodecCtx->width, avCodecCtx->height, avCodecCtx->pix_fmt, avCodecCtx->width, avCodecCtx->height, 
-		AV_PIX_FMT_RGB24,SWS_BILINEAR, NULL, NULL, NULL);
+		AV_PIX_FMT_YUV420P,SWS_BILINEAR, NULL, NULL, NULL);
 	avpacket = av_packet_alloc();
-
 	startTimer(15);
 }
 
@@ -63,6 +57,24 @@ void FFmpeg::timerEvent(QTimerEvent *event)
 		}
 		av_packet_unref(avpacket);
 	}
-
 	QObject::timerEvent(event);
+}
+
+void FFmpeg::flip_frame_vertical(AVFrame* frame) {
+	int linesize = frame->linesize[0];
+	uint8_t* tmp = (uint8_t*)av_malloc(linesize);
+	int height = frame->height;
+	int width = 3 * frame->width;
+
+	for (int y = 0; y < height / 2; y++) {
+		for (int x = 0; x < width; x++) {
+			int src_index = y * linesize + x;
+			int dst_index = (height - 1 - y) * linesize + x;
+			// ½»»»ÏñËØÊý¾Ý
+			tmp[0] = frame->data[0][src_index];
+			frame->data[0][src_index] = frame->data[0][dst_index];
+			frame->data[0][dst_index] = tmp[0];
+		}
+	}
+	av_free(tmp);
 }
