@@ -2,6 +2,7 @@ ffmpeg/.vs
 ffmpeg/QLabelPlayVideo2/x64
 ffmpeg/QOpenGLPlayVideo/x64
 ffmpeg/GLPlayYUV/x64
+ffmpeg/PlaySocketVideo/x64
 ffmpeg/Remuxing/x64
 ffmpeg/SaveVideo/x64
 ffmpeg/x64/Debug/*.ilk

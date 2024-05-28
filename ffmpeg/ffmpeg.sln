@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SaveVideo", "SaveVideo\Save
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Remuxing", "Remuxing\Remuxing.vcxproj", "{39894377-3276-4423-B3BA-449A1DED9B66}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlaySocketVideo", "PlaySocketVideo\PlaySocketVideo.vcxproj", "{01F0A91E-925E-480C-BB0E-8472F0E17210}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -53,6 +55,12 @@ Global
 		{39894377-3276-4423-B3BA-449A1DED9B66}.Release|x64.Build.0 = Release|x64
 		{39894377-3276-4423-B3BA-449A1DED9B66}.Release|x86.ActiveCfg = Release|Win32
 		{39894377-3276-4423-B3BA-449A1DED9B66}.Release|x86.Build.0 = Release|Win32
+		{01F0A91E-925E-480C-BB0E-8472F0E17210}.Debug|x64.ActiveCfg = Debug|x64
+		{01F0A91E-925E-480C-BB0E-8472F0E17210}.Debug|x64.Build.0 = Debug|x64
+		{01F0A91E-925E-480C-BB0E-8472F0E17210}.Debug|x86.ActiveCfg = Debug|x64
+		{01F0A91E-925E-480C-BB0E-8472F0E17210}.Release|x64.ActiveCfg = Release|x64
+		{01F0A91E-925E-480C-BB0E-8472F0E17210}.Release|x64.Build.0 = Release|x64
+		{01F0A91E-925E-480C-BB0E-8472F0E17210}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
