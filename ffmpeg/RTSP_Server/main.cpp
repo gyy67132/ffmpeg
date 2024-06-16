@@ -233,7 +233,7 @@ int sendRtpH264Frame(SOCKET serverRtpSocket, char *clientIp, uint16_t clientPort
 			rtpPacket->payload[1] = naluType & 0x1F;
 			rtpPacket->payload[1] |= 0x40;
 
-			memcpy(rtpPacket->payload + 2, frame + pos, remainrPtkSize);
+			memcpy(rtpPacket->payload + 2, frame + pos, remainrPtkSize+2);
 			ret = sendRtpPacketOverUDP(serverRtpSocket, clientIp, clientPort, rtpPacket, remainrPtkSize + 2);
 			if (ret < 0)
 				return -1;
@@ -377,7 +377,7 @@ void doClient(SOCKET clientSocket, char* clientIp, uint16_t clientPort)
 				else if (startCode4(frame))
 					startCode = 4;
 				frameSize -= startCode;
-				if (sendRtpH264Frame(serverRtpSocket, clientIp, clientPort,
+				if (sendRtpH264Frame(serverRtpSocket, clientIp, clientRtpPort,
 					rtpPacket, frame + startCode, frameSize) < 0)
 					break;
 				
