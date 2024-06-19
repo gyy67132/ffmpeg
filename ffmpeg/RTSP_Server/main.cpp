@@ -348,7 +348,7 @@ void doClient(SOCKET clientSocket, char* clientIp, uint16_t clientPort)
 		
 		if (!strcmp(method, "PLAY"))
 		{
-			FILE* fp = fopen("./1.h264", "rb");
+			FILE* fp = fopen("./11.h264", "rb");
 			if (!fp)
 			{
 				printf("¶ÁÈ¡1.h264ÎÄ¼þÊ§°Ü\n");

@@ -4,7 +4,8 @@
 FFmpeg::FFmpeg(QObject *parent)
 	: QObject(parent)
 {
-	
+	//打开文件，读取流信息，
+	//AVFormatContext
 	if (0 != avformat_open_input(&avf, "./11.mp4", NULL, NULL))
 		return;
 	if (avformat_find_stream_info(avf, NULL) < 0)
