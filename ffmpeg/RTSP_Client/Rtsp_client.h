@@ -13,6 +13,8 @@ class Rtsp_client
 	uint16_t port;
 	char mediaRoute[20];
 	char userAgent[20];
+	char contentBase[100];
+	int contentLength;
 public:
 	Rtsp_client(const char* url);
 	int initWinSock();
@@ -22,6 +24,7 @@ public:
 private:
 	int sendCmdOptions(int seq);
 	int sendCmdDescribe(int seq);
+	int sendCmdSetup(int seq);
 	int sendCmdOverTCP(char* buff, int len);
 };
 
