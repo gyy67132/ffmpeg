@@ -1,5 +1,23 @@
 #include "Rtsp_client.h"
 
+using namespace std;
+
+Rtsp_client::Rtsp_client(const char *url)
+{
+	"rtsp://127.0.0.1:554/live/test";
+	if (strncmp(url, "rtsp://", 7) != 0)
+	{
+		std::cerr << "url error" << std::endl;
+	}
+
+	if (sscanf(url + 7, "%[^:]:%hu/%s", ip, &port, mediaRoute) != 3)
+	{
+		std::cerr << "parse error" << std::endl;
+	}
+
+	strcpy(userAgent, "GGY_RtspClient");
+}
+
 int Rtsp_client::initWinSock()
 {
 	WORD wVersionRequeted = MAKEWORD(2, 2);
@@ -10,7 +28,7 @@ int Rtsp_client::initWinSock()
 		return -1;
 	}
 
-	SOCKET tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
+	tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (tcpSocket < 0)
 	{
 		std::cerr << "create socket error\n";
@@ -21,11 +39,20 @@ int Rtsp_client::initWinSock()
 
 int Rtsp_client::connectServer()
 {
+	struct sockaddr_in client;
+	client.sin_addr.S_un.S_addr = INADDR_ANY;
+	client.sin_family = AF_INET;
+
+	if (bind(tcpSocket, (sockaddr*)&client, sizeof(sockaddr)) == -1)
+	{
+		std::cerr << "bind error\n";
+		return -1;
+	}
+
 	struct sockaddr_in server;
-	server.sin_addr.s_addr = inet_addr("127.0.0.1");
 	server.sin_port = htons(554);
 	server.sin_family = AF_INET;
-
+	inet_pton(AF_INET, "127.0.0.1", &server.sin_addr);
 	if (connect(tcpSocket, (sockaddr*)&server, sizeof(server)) == -1)
 	{
 		std::cerr << "connect server error\n";
@@ -33,4 +60,108 @@ int Rtsp_client::connectServer()
 	}
 
 	return 0;
+}
+
+void Rtsp_client::startCMD()
+{
+	int recvseq = 0;
+	int sendSeq = 1;
+	if (sendCmdOptions(sendSeq) <= 0)
+	{
+		std::cerr << "sendCmdOptions error\n";
+		return;
+	}
+
+	const int buffSize = 1024;
+	char recvBuf[buffSize];
+	int responseStateCode;
+	
+
+	while (1)
+	{
+		int ret = recv(tcpSocket, recvBuf, buffSize, 0);
+		if (ret <= 0)
+		{
+			std::cerr << "recv error\n";
+			return;
+		}
+		std::cout << recvBuf << endl;
+
+		responseStateCode = 0;
+		recvseq = 0;
+
+		char* line = strtok(recvBuf, "\n");
+		while (line)
+		{
+			if (strstr(line, "RTSP/1.0")) {
+				if (sscanf(line, "RTSP/1.0 %d OK", &responseStateCode) != 1) {
+					std::cerr << "parse RTSP/1.0 error\n";
+					goto FINISH;
+				}
+			}
+			else if (strstr(line, "CSeq:"))
+			{
+				if (sscanf(line, "CSeq: %d", &recvseq) != 1) {
+					std::cerr << "parse seq error\n";
+					goto FINISH;
+				}
+			}
+
+			line = strtok(NULL, "\n");
+		}
+
+		if (responseStateCode == 200)
+		{
+			if (recvseq == 1)
+			{
+				if (sendCmdDescribe(++sendSeq) < 0)
+				{
+					std::cerr << "sendCmdDescribe error\n";
+					goto FINISH;
+				}
+			}
+		}
+		else {
+			std::cerr << "responseStateCode error " << responseStateCode << endl;
+			goto FINISH;
+		}
+	}
+
+FINISH:
+	return;
+}
+
+int Rtsp_client::sendCmdOptions(int seq)
+{
+	char buf[200];
+	sprintf(buf, "OPTIONS rtsp://%s:%d/%s RTSP/1.0\r\n"
+		"CSeq: %d\r\n"
+		"User-Agent: %s\r\n"
+		"\r\n", ip, port, mediaRoute, seq, userAgent);
+	return sendCmdOverTCP(buf, strlen(buf));
+}
+
+int Rtsp_client::sendCmdDescribe(int seq)
+{
+	char buf[200];
+	sprintf(buf, "DESCRIBE rtsp://%s:%d/%s RTSP/1.0\r\n"
+		"Accept: application/sdp\r\n"
+		"CSeq: %d\r\n"
+		"User-Agent: %s\r\n"
+		"\r\n", ip, port, mediaRoute, seq, userAgent);
+	return sendCmdOverTCP(buf, strlen(buf));
+}
+
+int Rtsp_client::sendCmdOverTCP(char* buff, int len)
+{
+	int ret = send(tcpSocket, buff, strlen(buff), 0);
+	if(ret < 0)
+	{
+		cout << "send error:" << WSAGetLastError()<<endl;
+	}
+	else {
+		cout <<"send-----------\n";
+		cout << buff << endl;
+	}
+	return ret;
 }
