@@ -75,7 +75,8 @@ void Rtsp_client::startCMD()
 	const int buffSize = 1024;
 	char recvBuf[buffSize];
 	int responseStateCode;
-	
+	bool isSendPlay = false;
+	char recvBufCopy[buffSize] = {0};
 
 	while (1)
 	{
@@ -91,6 +92,7 @@ void Rtsp_client::startCMD()
 
 		responseStateCode = 0;
 		recvSeq = 0;
+		memcpy(recvBufCopy, recvBuf, ret+1);
 
 		char* line = strtok(recvBuf, "\n");
 		while (line)
@@ -105,6 +107,13 @@ void Rtsp_client::startCMD()
 			{
 				if (sscanf(line, "CSeq: %d", &recvSeq) != 1) {
 					std::cerr << "parse seq error\n";
+					goto FINISH;
+				}
+			}
+			else if (strstr(line, "Session:"))
+			{
+				if (sscanf(line, "Session: %s", session) != 1) {
+					std::cerr << "parse session error\n";
 					goto FINISH;
 				}
 			}
@@ -137,11 +146,40 @@ void Rtsp_client::startCMD()
 			}
 			else if (recvSeq == 2)
 			{
-				if (sendCmdSetup(++sendSeq) < 0)
+				
+				sdp.parse(recvBufCopy, ret);
+				SdpTrack* track = sdp.popTrack();
+
+				if (track)
 				{
-					std::cerr << "sendCmdSetup error\n";
-					goto FINISH;
+					//第一次发送setup
+					sendCmdSetup(++sendSeq, track);
 				}
+			}
+			else if (sendSeq == recvSeq && !isSendPlay)
+			{
+				SdpTrack* track = sdp.popTrack();
+				if (track)
+				{
+					//第二次发送setup
+					sendCmdSetup(++sendSeq, track);
+				}
+				else {
+					if (sendCmdPlay(++sendSeq) < 0)
+					{
+						std::cerr << "sendCmdPlay error "<< endl;
+						goto FINISH;
+					}
+					isSendPlay = true;
+				}
+			}
+			else if (sendSeq == recvSeq && isSendPlay)
+			{
+				std::cout << "play.... "<< endl;
+			}
+			else {
+				std::cerr << "recvSeq error " << recvSeq<< endl;
+				goto FINISH;
 			}
 		}
 		else {
@@ -175,14 +213,29 @@ int Rtsp_client::sendCmdDescribe(int seq)
 	return sendCmdOverTCP(buf, strlen(buf));
 }
 
-int Rtsp_client::sendCmdSetup(int seq)
+int Rtsp_client::sendCmdSetup(int seq, SdpTrack* track)
 {
+	int interleaved = track->control_id * 2;
+	
 	char buf[200];
-	sprintf(buf, "SETUP rtsp://%s:%d/%s RTSP/1.0\r\n"
-		"Accept: application/sdp\r\n"
+	sprintf(buf, "SETUP rtsp://%s:%d/%s/%s RTSP/1.0\r\n"
+		"Transport: RTP/AVP/TCP;unicast;interleaved=%d-%d\r\n"
 		"CSeq: %d\r\n"
 		"User-Agent: %s\r\n"
-		"\r\n", ip, port, mediaRoute, seq, userAgent);
+		"Session: %s\r\n"
+		"\r\n", ip, port, mediaRoute,track->control, interleaved, interleaved + 1, seq, userAgent, session);
+	return sendCmdOverTCP(buf, strlen(buf));
+}
+
+int Rtsp_client::sendCmdPlay(int seq)
+{
+	char buf[200];
+	sprintf(buf, "PLAY rtsp://%s:%d/%s RTSP/1.0\r\n"
+		"Range: npt=0.000-\r\n"
+		"CSeq: %d\r\n"
+		"User-Agent: %s\r\n"
+		"Session: %s\r\n"
+		"\r\n", ip, port, mediaRoute, seq, userAgent, session);
 	return sendCmdOverTCP(buf, strlen(buf));
 }
 

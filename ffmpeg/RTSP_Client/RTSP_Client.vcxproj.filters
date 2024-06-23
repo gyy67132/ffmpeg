@@ -21,9 +21,15 @@
     <ClCompile Include="Rtsp_client.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Sdp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Rtsp_client.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sdp.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

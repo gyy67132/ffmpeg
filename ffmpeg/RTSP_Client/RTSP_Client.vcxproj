@@ -141,9 +141,11 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Rtsp_client.cpp" />
+    <ClCompile Include="Sdp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Rtsp_client.h" />
+    <ClInclude Include="Sdp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
