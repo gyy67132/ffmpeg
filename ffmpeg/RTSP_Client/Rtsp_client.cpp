@@ -176,6 +176,9 @@ void Rtsp_client::startCMD()
 			else if (sendSeq == recvSeq && isSendPlay)
 			{
 				std::cout << "play.... "<< endl;
+
+				parseData();
+				goto FINISH;
 			}
 			else {
 				std::cerr << "recvSeq error " << recvSeq<< endl;
@@ -251,4 +254,26 @@ int Rtsp_client::sendCmdOverTCP(char* buff, int len)
 		cout << buff << endl;
 	}
 	return ret;
+}
+
+void Rtsp_client::parseData()
+{
+	const int buffSize = 4 * 1024;
+	char recvBuff[buffSize];
+	while (1)
+	{
+		int ret = recv(tcpSocket, recvBuff, buffSize, 0);
+		if (ret <= 0)
+		{
+			printf("recv error %d\n", WSAGetLastError());
+			return;
+		}
+		printf("recv-------\n%s", recvBuff);
+		char* p = recvBuff;
+		int size = ret;
+		while (size != 0)
+		{
+
+		}
+	}
 }

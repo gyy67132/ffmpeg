@@ -29,6 +29,7 @@ private:
 	int sendCmdSetup(int seq, SdpTrack* track);
 	int sendCmdPlay(int seq);
 	int sendCmdOverTCP(char* buff, int len);
+	void parseData();
 
 	Sdp sdp;
 };
