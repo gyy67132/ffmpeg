@@ -69,9 +69,10 @@ Rtsp_client::Rtsp_client(const char *url)
 
 	strcpy(userAgent, "GGY_RtspClient");
 
-	m_rtpCtx.playload = 96;
-	m_rtpCtx.encoding = "H264";
-	m_rtpCtx.out_f = fopen("out.h264", "wb");
+	m_rtpCtx = new RtpContext;
+	m_rtpCtx->playload = 96;
+	m_rtpCtx->encoding = "H264";
+	m_rtpCtx->out_f = fopen("out.h264", "wb");
 
 	rtp_packet_setsize(1456);
 
@@ -79,14 +80,14 @@ Rtsp_client::Rtsp_client(const char *url)
 	handler.alloc = rtp_packet_alloc;
 	handler.free = rtp_packet_free;
 	handler.packet = rtp_packet_decode_packet;
-	m_rtpCtx.decoder = rtp_payload_decode_create(m_rtpCtx.playload, m_rtpCtx.encoding, &handler, &m_rtpCtx);
+	m_rtpCtx->decoder = rtp_payload_decode_create(m_rtpCtx->playload, m_rtpCtx->encoding, &handler, m_rtpCtx);
 }
 Rtsp_client::~Rtsp_client()
 {
 	closesocket(tcpSocket);
 	WSACleanup();
 
-	rtp_payload_decode_destroy(m_rtpCtx.decoder);
+	rtp_payload_decode_destroy(m_rtpCtx->decoder);
 }
 
 
@@ -158,11 +159,11 @@ void Rtsp_client::startCMD()
 			std::cerr << "recv error\n";
 			return;
 		}
-		if(ret == buffSize)
+		/*if(ret == buffSize)
 			recvBuf[ret - 1] = '\0';
-		else
+		else*/
 			recvBuf[ret] = '\0';
-		printf("recv-------------------%s\n",recvBuf);
+		printf("recv-------------------\n%s",recvBuf);
 
 		responseStateCode = 0;
 		recvSeq = 0;
@@ -332,7 +333,7 @@ int Rtsp_client::sendCmdOverTCP(char* buff, int len)
 void Rtsp_client::parseData()
 {
 	const int buffSize = 1024;
-	char recvBuff[buffSize];
+	char *recvBuff = (char*)malloc(buffSize);
 	while (1)
 	{
 		int ret = recv(tcpSocket, recvBuff, buffSize, 0);
@@ -401,16 +402,18 @@ void Rtsp_client::parseData()
 			}
 		}
 	}
+
+	free(recvBuff);
 }
 
 bool Rtsp_client::parsePacket(char channel, char* packet, int size)
 {
 	if (0 == channel)
 	{
-		m_rtpCtx.size = size;
-		memcpy(m_rtpCtx.packet, packet, size);
+		m_rtpCtx->size = size;
+		memcpy(m_rtpCtx->packet, packet, size);
 
-		rtp_payload_decode_input(m_rtpCtx.decoder, m_rtpCtx.packet, m_rtpCtx.size);
+		rtp_payload_decode_input(m_rtpCtx->decoder, m_rtpCtx->packet, m_rtpCtx->size);
 	}
 	else {
 

@@ -30,7 +30,7 @@ class Rtsp_client
 	int contentLength;
 	char session[20];
 
-	RtpContext m_rtpCtx;
+	RtpContext *m_rtpCtx;
 public:
 	Rtsp_client(const char* url);
 	~Rtsp_client();
