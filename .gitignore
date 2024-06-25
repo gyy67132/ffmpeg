@@ -7,5 +7,6 @@ ffmpeg/Remuxing/x64
 ffmpeg/SaveVideo/x64
 ffmpeg/RTSP_Server/x64
 ffmpeg/RTSP_Client/x64
+ffmpeg/RtpLibrary/x64
 ffmpeg/x64/Debug/*.ilk
 ffmpeg/x64/Debug/*.pdb
