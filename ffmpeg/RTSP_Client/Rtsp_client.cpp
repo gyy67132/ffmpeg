@@ -116,6 +116,9 @@ int Rtsp_client::connectServer()
 	client.sin_addr.S_un.S_addr = INADDR_ANY;
 	client.sin_family = AF_INET;
 
+	int on = 1;
+	setsockopt(tcpSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
+
 	if (bind(tcpSocket, (sockaddr*)&client, sizeof(sockaddr)) == -1)
 	{
 		std::cerr << "bind error\n";
@@ -154,20 +157,20 @@ void Rtsp_client::startCMD()
 	while (1)
 	{
 		int ret = recv(tcpSocket, recvBuf, buffSize, 0);
-		if (ret <= 0)
+		if (ret <= 0 )
 		{
-			std::cerr << "recv error\n";
+			printf("recv error %d\n", ret);
 			return;
-		}
-		/*if(ret == buffSize)
-			recvBuf[ret - 1] = '\0';
-		else*/
+		}	
+		if(ret == buffSize)
+			recvBuf[ret-1] = '\0';
+		else 
 			recvBuf[ret] = '\0';
 		printf("recv-------------------\n%s",recvBuf);
 
 		responseStateCode = 0;
 		recvSeq = 0;
-		memcpy(recvBufCopy, recvBuf, ret+1);
+		memcpy(recvBufCopy, recvBuf, ret);
 
 		char* line = strtok(recvBuf, "\n");
 		while (line)
@@ -213,7 +216,7 @@ void Rtsp_client::startCMD()
 		{
 			if (recvSeq == 1)
 			{
-				if (sendCmdDescribe(++sendSeq) < 0)
+				if (sendCmdDescribe(++sendSeq) <= 0)
 				{
 					std::cerr << "sendCmdDescribe error\n";
 					goto FINISH;
@@ -221,7 +224,6 @@ void Rtsp_client::startCMD()
 			}
 			else if (recvSeq == 2)
 			{
-				
 				sdp.parse(recvBufCopy, ret);
 				SdpTrack* track = sdp.popTrack();
 
@@ -240,7 +242,7 @@ void Rtsp_client::startCMD()
 					sendCmdSetup(++sendSeq, track);
 				}
 				else {
-					if (sendCmdPlay(++sendSeq) < 0)
+					if (sendCmdPlay(++sendSeq) <= 0)
 					{
 						std::cerr << "sendCmdPlay error "<< endl;
 						goto FINISH;
@@ -250,7 +252,7 @@ void Rtsp_client::startCMD()
 			}
 			else if (sendSeq == recvSeq && isSendPlay)
 			{
-				std::cout << "play......."<< endl;
+				std::cout << "\nplay.......\n"<< endl;
 
 				parseData();
 				goto FINISH;
@@ -272,7 +274,7 @@ FINISH:
 
 int Rtsp_client::sendCmdOptions(int seq)
 {
-	char buf[200];
+	char buf[1024] = { 0 };
 	sprintf(buf, "OPTIONS rtsp://%s:%d/%s RTSP/1.0\r\n"
 		"CSeq: %d\r\n"
 		"User-Agent: %s\r\n"
@@ -282,7 +284,7 @@ int Rtsp_client::sendCmdOptions(int seq)
 
 int Rtsp_client::sendCmdDescribe(int seq)
 {
-	char buf[200];
+	char buf[1024] = { 0 };
 	sprintf(buf, "DESCRIBE rtsp://%s:%d/%s RTSP/1.0\r\n"
 		"Accept: application/sdp\r\n"
 		"CSeq: %d\r\n"
@@ -295,7 +297,7 @@ int Rtsp_client::sendCmdSetup(int seq, SdpTrack* track)
 {
 	int interleaved = track->control_id * 2;
 	
-	char buf[200];
+	char buf[1024] = { 0 };
 	sprintf(buf, "SETUP rtsp://%s:%d/%s/%s RTSP/1.0\r\n"
 		"Transport: RTP/AVP/TCP;unicast;interleaved=%d-%d\r\n"
 		"CSeq: %d\r\n"
@@ -307,7 +309,7 @@ int Rtsp_client::sendCmdSetup(int seq, SdpTrack* track)
 
 int Rtsp_client::sendCmdPlay(int seq)
 {
-	char buf[200];
+	char buf[1024] = {0};
 	sprintf(buf, "PLAY rtsp://%s:%d/%s RTSP/1.0\r\n"
 		"Range: npt=0.000-\r\n"
 		"CSeq: %d\r\n"
@@ -320,12 +322,12 @@ int Rtsp_client::sendCmdPlay(int seq)
 int Rtsp_client::sendCmdOverTCP(char* buff, int len)
 {
 	int ret = send(tcpSocket, buff, strlen(buff), 0);
-	if(ret < 0)
+	if(ret <= 0)
 	{
-		printf( "send error: %d\n", WSAGetLastError());
+		printf( "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!send error: %d !!!!!!!!!!!!!!!!!!!!!!!!!\n", WSAGetLastError());
 	}
 	else {
-		printf("send-------------------\n%s", buff);
+		printf("\nsend-------------------\n%s", buff);
 	}
 	return ret;
 }
@@ -334,6 +336,10 @@ void Rtsp_client::parseData()
 {
 	const int buffSize = 1024;
 	char *recvBuff = (char*)malloc(buffSize);
+	while (1)
+	{
+
+	}
 	while (1)
 	{
 		int ret = recv(tcpSocket, recvBuff, buffSize, 0);
@@ -395,7 +401,6 @@ void Rtsp_client::parseData()
 					p += len;
 					size = 0;
 				}
-				
 			}
 			else {
 				p++;
