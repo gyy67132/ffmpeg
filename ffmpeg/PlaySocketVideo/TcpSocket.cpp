@@ -80,7 +80,6 @@ void TcpSocket::run()
 		goto end;
 	}
 
-	AVPacket* packet = NULL;
 	packet = av_packet_alloc();
 	if (!packet)
 	{
@@ -112,7 +111,7 @@ void TcpSocket::run()
 		qDebug() << "read......";
 		quint8 header[HEADER_SIZE];
 		quint32 r = readBufferData(header, HEADER_SIZE);
-		if (r <= 0)
+		if (r < HEADER_SIZE)
 		{
 			qDebug() << "11";
 			goto end;
@@ -217,8 +216,6 @@ void TcpSocket::run()
 			emit getConfigFrame(packet);
 		}
 		else {
-
-			qDebug() << "ggy--3-------------------------------------------------------" << ff++;
 			quint8* inData = packet->data;
 			int inLen = packet->size;
 			quint8* outData = Q_NULLPTR;
@@ -251,6 +248,7 @@ void TcpSocket::run()
 			sws_scale(sws_ctx, (const uint8_t* const*)m_decodingFrame->data, m_decodingFrame->linesize, 0, m_codecCtx->height, frame->data, frame->linesize);
 
 			emit getFrame(frame);
+			qDebug() << "ggy--3-------------------------------------------------------" << ff++<<frame->linesize[0] << m_codecCtx->height;
 
 			if (m_pending)
 				av_packet_free(&m_pending);

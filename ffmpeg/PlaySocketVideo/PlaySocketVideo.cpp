@@ -9,7 +9,7 @@ PlaySocketVideo::PlaySocketVideo(QWidget *parent)
     TcpSocket* tcpSocket = new TcpSocket(this);
     
 
-    connect(tcpSocket, &TcpSocket::getFrame, this, &PlaySocketVideo::updateFrame);
+    connect(tcpSocket, &TcpSocket::getFrame, this, &PlaySocketVideo::updateFrame, Qt::QueuedConnection);
 }
 
 PlaySocketVideo::~PlaySocketVideo()
@@ -20,5 +20,5 @@ void PlaySocketVideo::updateFrame(AVFrame* frame)
     QImage image(frame->data[0], frame->width, frame->height, QImage::Format_RGB888);
     ui.label->setPixmap(QPixmap::fromImage(image));
 
-    repaint();
+    update();
 }
