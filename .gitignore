@@ -10,3 +10,10 @@ ffmpeg/RTSP_Client/x64
 ffmpeg/RtpLibrary/x64
 ffmpeg/x64/Debug/*.ilk
 ffmpeg/x64/Debug/*.pdb
+
+ffmpeg2/.vs
+ffmpeg2/Decode/x64
+ffmpeg2/open/x64
+ffmpeg2/YUV/x64
+ffmpeg2/x64/Debug/*.ilk
+ffmpeg2/x64/Debug/*.pdb

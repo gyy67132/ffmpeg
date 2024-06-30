@@ -51,7 +51,8 @@ void FFmpeg::timerEvent(QTimerEvent *event)
 			avcodec_send_packet(avCodecCtx, avpacket);
 			while (avcodec_receive_frame(avCodecCtx, frame) == 0)
 			{
-				sws_scale(sws_ctx, (const uint8_t * const *)frame->data, frame->linesize, 0, avCodecCtx->height, frame2->data, frame2->linesize);
+				sws_scale(sws_ctx, (const uint8_t * const *)frame->data, frame->linesize, 0,
+						avCodecCtx->height, frame2->data, frame2->linesize);
 				emit newFrame(frame2);
 			}
 		}

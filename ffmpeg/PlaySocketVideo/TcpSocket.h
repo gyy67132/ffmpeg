@@ -34,4 +34,5 @@ private:
 	AVCodecContext* m_codecCtx = Q_NULLPTR;
 	AVPacket* m_pending = Q_NULLPTR;
 	AVCodecParserContext* m_parser = Q_NULLPTR;
+	AVPacket* packet = NULL;
 };

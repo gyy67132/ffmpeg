@@ -61,13 +61,13 @@ void TcpSocket::run()
 	if (!codec)
 	{
 		qDebug() << "000";
-		goto end;
+		return;
 	}
 	m_codecCtx = avcodec_alloc_context3(codec);
 	if (!m_codecCtx)
 	{
 		qDebug() << "0000";
-		goto end;
+		return;
 	}
 	m_codecCtx->flags |= AV_CODEC_FLAG_LOW_DELAY;
 	m_codecCtx->width = 1080;
@@ -77,22 +77,21 @@ void TcpSocket::run()
 	if (avcodec_open2(m_codecCtx, codec, NULL) < 0)
 	{
 		qDebug() << "00000";
-		goto end;
+		return;
 	}
 
-	AVPacket* packet = NULL;
 	packet = av_packet_alloc();
 	if (!packet)
 	{
 		qDebug() << "001";
-		goto end;
+		return;
 	}
 
 	m_parser = av_parser_init(AV_CODEC_ID_H264);
 	if (!m_parser)
 	{
 		qDebug() << "002";
-		goto end;
+		return;
 	}
 
 	m_parser->flags |= PARSER_FLAG_COMPLETE_FRAMES;
@@ -112,10 +111,10 @@ void TcpSocket::run()
 		qDebug() << "read......";
 		quint8 header[HEADER_SIZE];
 		quint32 r = readBufferData(header, HEADER_SIZE);
-		if (r <= 0)
+		if (r < HEADER_SIZE)
 		{
 			qDebug() << "11";
-			goto end;
+			return;
 		}
 		quint64 ptsFlags = bufferRead64be(header);
 		quint32 len = bufferRead32be(&header[8]);
@@ -146,7 +145,7 @@ void TcpSocket::run()
 			a++;
 		}
 
-		if (packet->size < 0)
+		if (packet->size != len)
 		{
 			quint32 len1 = len;
 			int a = 10;
@@ -170,8 +169,10 @@ void TcpSocket::run()
 
 		bool isConfig = packet->pts == AV_NOPTS_VALUE;
 
+		static int ff = 0;
 		if (m_pending || isConfig)
 		{
+			qDebug() << "ggy--1-------------------------------------------------------" << ff++;
 			qint32 offset;
 			if (m_pending) {
 				offset = m_pending->size;
@@ -191,7 +192,13 @@ void TcpSocket::run()
 					break;
 				}
 			}
-
+			if (packet->size != len)
+			{
+				quint32 len1 = len;
+				int a = 10;
+				a++;
+				continue;
+			}
 			memcpy(m_pending->data + offset, packet->data, packet->size);
 
 			if (!isConfig)
@@ -205,6 +212,7 @@ void TcpSocket::run()
 
 		if (isConfig)
 		{
+			qDebug() << "ggy--2-------------------------------------------------------" << ff++;
 			emit getConfigFrame(packet);
 		}
 		else {
@@ -237,25 +245,24 @@ void TcpSocket::run()
 				break;
 			}
 
-			//sws_scale(sws_ctx, (const uint8_t* const*)m_decodingFrame->data, m_decodingFrame->linesize, 0, m_codecCtx->height, frame->data, frame->linesize);
+			sws_scale(sws_ctx, (const uint8_t* const*)m_decodingFrame->data, m_decodingFrame->linesize, 0, m_codecCtx->height, frame->data, frame->linesize);
 
-			//emit getFrame(frame);
+			emit getFrame(frame);
+			qDebug() << "ggy--3-------------------------------------------------------" << ff++<<frame->linesize[0] << m_codecCtx->height;
 
-			
+			if (m_pending)
+				av_packet_free(&m_pending);
 		}
 
 		av_packet_unref(packet);
 	}
 
 	if (m_pending)
-	{
 		av_packet_free(&m_pending);
-	}
-
 	av_packet_free(&packet);
 
 	av_parser_close(m_parser);
-end:
+FINISH:
 	if(m_codecCtx)
 		avcodec_free_context(&m_codecCtx);
 }
