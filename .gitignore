@@ -17,3 +17,5 @@ ffmpeg2/open/x64
 ffmpeg2/YUV/x64
 ffmpeg2/x64/Debug/*.ilk
 ffmpeg2/x64/Debug/*.pdb
+
+ffmpeg_audio/Bluetooth/build-Bluetooth-5_15_MSVC-Debug/
