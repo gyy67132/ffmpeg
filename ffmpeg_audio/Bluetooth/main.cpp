@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "BluetoothScanner.h"
 
 #include <QApplication>
@@ -46,7 +46,7 @@ void fill_audio(void *para, uint8_t *stream, int len) {
 }
 
 
-int main(int argc, char **argv) {
+int main1(int argc, char **argv) {
     const char *src_name = "../plum.mp3";//"output.opus";
     if (argc > 1) {
         src_name = argv[1];
@@ -202,18 +202,18 @@ int main(int argc, char **argv) {
 }
 
 
-// int main(int argc, char *argv[])
-// {
-//     QApplication a(argc, argv);
-//     MainWindow w;
-//     w.show();
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
 
-//     BluetoothScanner discover;
-//     QObject::connect(&discover, &BluetoothScanner::bluetoothInfo, &w, &MainWindow::showBluetoothInfo);
-//     discover.startScan();
+    BluetoothScanner discover;
+    QObject::connect(&discover, &BluetoothScanner::bluetoothInfo, &w, &MainWindow::showBluetoothInfo);
+    discover.startScan();
 
-//     return a.exec();
-// }
+    return a.exec();
+}
 
 
 // extern "C"

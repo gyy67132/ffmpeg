@@ -1,4 +1,4 @@
-#include "bluetoothconnect.h"
+﻿#include "bluetoothconnect.h"
 
 #include "globalmessage.h"
 #include "BluetoothData.h"
