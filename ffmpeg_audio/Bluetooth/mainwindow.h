@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 
+#include "AudioCapture.h"
+#include "audioplayer.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -23,5 +26,8 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+
+    AudioCapture *mAudioCapture;
+    AudioPlayer *mAudioPlayer;
 };
 #endif // MAINWINDOW_H

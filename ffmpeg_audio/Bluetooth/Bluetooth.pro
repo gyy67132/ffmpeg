@@ -1,6 +1,6 @@
-QT       += core gui bluetooth
+QT       += core gui bluetooth concurrent
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets multimedia
 
 CONFIG += c++17
 
@@ -14,19 +14,25 @@ LIBS += -L$$PWD/ffmpeg/bin/ -lavcodec -lavformat -lavutil -lswresample -lavdevic
         -L$$PWD/SDL/lib/ -lSDL2
 
 SOURCES += \
+    AudioCapture.cpp \
     BluetoothScanner.cpp \
+    audioplayer.cpp \
     bluetoothconnect.cpp \
     bluetoothdata.cpp \
     bufferutil.cpp \
+    ffmpegtool.cpp \
     globalmessage.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    AudioCapture.h \
     BluetoothScanner.h \
+    audioplayer.h \
     bluetoothconnect.h \
     bluetoothdata.h \
     bufferutil.h \
+    ffmpegtool.h \
     globalmessage.h \
     mainwindow.h
 

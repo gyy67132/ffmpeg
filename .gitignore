@@ -20,3 +20,9 @@ ffmpeg2/x64/Debug/*.pdb
 
 ffmpeg_audio/Bluetooth/build-Bluetooth-5_15_MSVC-Debug/
 ffmpeg_audio/Bluetooth/build-Bluetooth-Desktop_Qt_5_15_0_MSVC2019_64bit-Debug/
+ffmpeg_audio/Bluetooth/debug/
+ffmpeg_audio/Bluetooth/release/
+ffmpeg_audio/Bluetooth/.qtc_clangd
+ffmpeg_audio/Bluetooth/Makefile
+ffmpeg_audio/Bluetooth/Makefile.Debug
+ffmpeg_audio/Bluetooth/Makefile.Release

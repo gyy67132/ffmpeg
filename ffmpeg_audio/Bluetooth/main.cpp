@@ -202,7 +202,7 @@ int main1(int argc, char **argv) {
 }
 
 
-int main(int argc, char *argv[])
+int main2(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
@@ -216,66 +216,80 @@ int main(int argc, char *argv[])
 }
 
 
-// extern "C"
-// {
-// #include <libavformat/avformat.h>
-// #include <libavdevice/avdevice.h>
-// #include <libavutil/audio_fifo.h>
-// #include <libavcodec/avcodec.h>
-// }
+extern "C"
+{
+#include <libavformat/avformat.h>
+#include <libavdevice/avdevice.h>
+#include <libavutil/audio_fifo.h>
+#include <libavcodec/avcodec.h>
+}
 
-// int main()
-// {
-//     AVFormatContext *formatCtx = NULL;
+int main3()
+{
+    AVFormatContext *formatCtx = NULL;
 
-//     avdevice_register_all();
+    avdevice_register_all();
 
-//     AVPacket packet;
-//     int ret;
-//     FILE *outputFile;
-//     // 注册所有设备
-//     // 初始化数据包
-//     av_init_packet(&packet);
-//     // 设置日志级别
-//     av_log_set_level(AV_LOG_INFO);
+    AVPacket packet;
+    int ret;
+    FILE *outputFile;
+    // 注册所有设备
+    // 初始化数据包
+    av_init_packet(&packet);
+    // 设置日志级别
+    av_log_set_level(AV_LOG_INFO);
 
-//     // 寻找 ALSA 音频设备
-//     //Linux是使用alsa，Windows上使用dshow，MacOs上使用avfoundation
-//     const AVInputFormat *inputFormat = av_find_input_format("dshow");
-//     if (!inputFormat)
-//     {
-//         fprintf(stderr, "Cannot find input device\n");
-//         return -1;
-//     }
+    // 寻找 ALSA 音频设备
+    //Linux是使用alsa，Windows上使用dshow，MacOs上使用avfoundation
+    const AVInputFormat *inputFormat = av_find_input_format("dshow");
+    if (!inputFormat)
+    {
+        fprintf(stderr, "Cannot find input device\n");
+        return -1;
+    }
 
-//     // 打开音频设备
-//     if ((ret = avformat_open_input(&formatCtx, "default", inputFormat, NULL)) < 0)
-//     {
-//         av_log(NULL, AV_LOG_ERROR, "Cannot open input device\n");
-//         return -1;
-//     }
+    // 打开音频设备
+    if ((ret = avformat_open_input(&formatCtx, "default", inputFormat, NULL)) < 0)
+    {
+        av_log(NULL, AV_LOG_ERROR, "Cannot open input device\n");
+        return -1;
+    }
 
-//     outputFile = fopen("output.pcm", "wb");
-//     if (!outputFile)
-//     {
-//         fprintf(stderr, "Could not open output file\n");
-//         return -1;
-//     }
-//     int count = 0;
-//     // 读取数据包
-//     while ((ret = av_read_frame(formatCtx, &packet)) >= 0 && count++ <5000)
-//     {
-//         // 在这里处理捕获的音频数据
-//         qDebug() << "packet size is " << packet.size;
-//         fwrite(packet.data, 1, packet.size, outputFile);  // Write raw audio data
-//         av_packet_unref(&packet);
-//     }
+    outputFile = fopen("output.pcm", "wb");
+    if (!outputFile)
+    {
+        fprintf(stderr, "Could not open output file\n");
+        return -1;
+    }
+    int count = 0;
+    // 读取数据包
+    while ((ret = av_read_frame(formatCtx, &packet)) >= 0 && count++ <5000)
+    {
+        // 在这里处理捕获的音频数据
+        qDebug() << "packet size is " << packet.size;
+        fwrite(packet.data, 1, packet.size, outputFile);  // Write raw audio data
+        av_packet_unref(&packet);
+    }
 
-//     // Clean up
-//     fclose(outputFile);
-//     // 清理
-//     avformat_close_input(&formatCtx);
-//     avformat_free_context(formatCtx);
-//     return 0;
-// }
+    // Clean up
+    fclose(outputFile);
+    // 清理
+    avformat_close_input(&formatCtx);
+    avformat_free_context(formatCtx);
+    return 0;
+}
 
+
+
+
+
+
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
+    MainWindow w;
+    w.show();
+
+    //QTimer::singleShot(5000, &app, SLOT(quit()));
+    return app.exec();
+}
