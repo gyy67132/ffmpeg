@@ -1,4 +1,4 @@
-#include "bluetoothdata.h"
+﻿#include "bluetoothdata.h"
 
 #include "globalmessage.h"
 #include "bluetoothconnect.h"
@@ -69,7 +69,7 @@ void BluetoothData::processData(QByteArray data)
 
     }else if(13 == len)
     {
-        if((char)0x14 == data[1])
+        if((char)0x14 == data[1])//录音开始
         {
             sessionArr = data.mid(3, 4);
             sessionID = data[3] + (data[4] << 8) +  (data[5] << 16)+ (data[6] << 24) ;
@@ -86,7 +86,7 @@ void BluetoothData::processData(QByteArray data)
             //recvAudioData = false;
             //emit GlobalMessage::instance().sendMessage("record audio stop sessionId:" + QString::number(sessionID));
 
-            QFile file("output.pcm");
+            QFile file("output.opus");
             if (!file.open(QIODevice::WriteOnly)) {
                 emit GlobalMessage::instance().sendMessage("Cannot open file for writing output.wav");
                 return;

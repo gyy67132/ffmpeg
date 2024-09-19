@@ -1,4 +1,4 @@
-#include "audiocapture.h"
+﻿#include "audiocapture.h"
 
 #include <QtConcurrent>
 
@@ -56,7 +56,7 @@ void AudioCapture::startCaputer()
 //        }
 //    });
 
-    file->setFileName("audio_data_.raw");
+    file->setFileName("audio_data_.pcm");
     file->open(QIODevice::WriteOnly | QIODevice::Truncate);
 
     audio->start(file);

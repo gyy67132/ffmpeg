@@ -5,6 +5,8 @@
 BluetoothScanner::BluetoothScanner(QObject *parent) :
     QObject(parent), discoveryAgent(new QBluetoothDeviceDiscoveryAgent(this))
 {
+    //超时时间为0，则一直扫描直到调用停止扫描，如果不为0，则扫描指定时间后自动停止
+    discoveryAgent->setLowEnergyDiscoveryTimeout(0);
     connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered,
             this, &BluetoothScanner::deviceDiscovered);
     connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished,
@@ -42,6 +44,9 @@ void BluetoothScanner::deviceDiscovered(const QBluetoothDeviceInfo &device)
     //     emit bluetoothInfo("------------------------start to connect TOAll L_Ring Pro 2\n");
     // }
     if(device.address().toString().contains("DA:5E")){
+        //正在扫描先停止
+        stopScan();
+        //连接指定设备
         new BluetoothConnect(device);
         emit bluetoothInfo("------------------------start to connect TOAll L_Ring Pro x\n");
     }

@@ -4,6 +4,8 @@
 #include "BluetoothData.h"
 
 #include <QThread>
+#include <QDateTime>
+#include <QTimeZone>
 
 BluetoothConnect::BluetoothConnect(const QBluetoothDeviceInfo& info, QObject *parent)
     : QObject{parent},bluetoothDeviceInfo{info}
@@ -37,7 +39,7 @@ void BluetoothConnect::onControlConnected()
 {
     // 停止连接计时
     //m_controlTimer.stop();
-    emit sigDebugLog(bluetoothDeviceInfo.name() + "蓝牙控制器连接成功，开始搜索蓝牙服务！");
+    emit sigDebugLog(bluetoothDeviceInfo.name() + QString::fromLocal8Bit("蓝牙控制器连接成功，开始搜索蓝牙服务！"));
     //m_uuidList.clear();
     QThread::msleep(1000);
     //搜索服务
@@ -52,19 +54,19 @@ void BluetoothConnect::onControlDisconnected()
 
 void BluetoothConnect::onServiceDiscovered(const QBluetoothUuid &newService)
 {
-    emit sigDebugLog(QString("发现一个蓝牙uuid:").append(newService.toString()));
+    emit sigDebugLog(QString::fromLocal8Bit("发现一个蓝牙uuid:").append(newService.toString()));
     m_uuidList.append(newService);
 }
 
 void BluetoothConnect::onControlDiscoveryFinished()
 {
-    emit sigDebugLog(bluetoothDeviceInfo.name() +"蓝牙服务搜索结束");
+    emit sigDebugLog(bluetoothDeviceInfo.name() + QString::fromLocal8Bit("蓝牙服务搜索结束"));
     QThread::msleep(1000);
     createService(0);
 }
 void BluetoothConnect::onControlError(QLowEnergyController::Error value)
 {
-    emit sigDebugLog(bluetoothDeviceInfo.name() +("蓝牙服务搜索失败") + QString::number(value));
+    emit sigDebugLog(bluetoothDeviceInfo.name() +QString::fromLocal8Bit("蓝牙服务搜索失败") + QString::number(value));
 }
 
 
@@ -85,9 +87,9 @@ void BluetoothConnect::createService(int iRow)
     m_service = m_control->createServiceObject(btUuid,this);
     if (m_service == NULL)
     {
-        emit sigDebugLog(bluetoothDeviceInfo.name() +"创建蓝牙服务失败");
+        emit sigDebugLog(bluetoothDeviceInfo.name() +QString::fromLocal8Bit("创建蓝牙服务失败"));
     } else {
-        emit sigDebugLog(bluetoothDeviceInfo.name() +"创建蓝牙服务成功");
+        emit sigDebugLog(bluetoothDeviceInfo.name() +QString::fromLocal8Bit("创建蓝牙服务成功"));
 
         //监听服务状态变化,有服务来
         connect(m_service,SIGNAL(stateChanged(QLowEnergyService::ServiceState))
@@ -124,10 +126,10 @@ void BluetoothConnect::onServiceStateChanged(QLowEnergyService::ServiceState new
         for(int i=0; i<m_charList.size(); i++){
             bleCharacteristic = m_charList.at(i);
             if(bleCharacteristic.isValid()){
-                emit sigDebugLog(bluetoothDeviceInfo.name() + "发现服务" + bleCharacteristic.uuid().toString());
+                emit sigDebugLog(bluetoothDeviceInfo.name() + QString::fromLocal8Bit("发现服务") + bleCharacteristic.uuid().toString());
                 //if("{00002bb0-0000-1000-8000-00805f9b34fb}" != bleCharacteristic.uuid().toString())
                     //continue;
-                QLowEnergyDescriptor  m_descriptor = bleCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration);
+                  QLowEnergyDescriptor  m_descriptor = bleCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration);
 
                 if(m_descriptor.isValid()){
                     emit sigDebugLog(bleCharacteristic.uuid().toString() + "write 0100\n");
@@ -152,8 +154,99 @@ void BluetoothConnect::onServiceCharacteristicChanged(QLowEnergyCharacteristic c
 {
     int len = newValue.size();
     if(len > 0){
-        emit sigDebugLog(QString("接收数据rec:").append(newValue.toHex()));
+        emit sigDebugLog(QString::fromLocal8Bit("接收数据rec:").append(newValue.toHex()));
         BluetoothData::instance(this).processData(newValue);
+        //ReceiveCmd(newValue);
+    }
+}
+
+#define TOKEN "1234567890000000"
+QByteArray BluetoothConnect::GetToken()
+{
+    QByteArray array;
+    array.append("01");
+    array.append("01");
+    // deviceType
+    array.append("00");
+    // bleVersion
+    array.append("01");
+    // check pass
+    array.append("01");
+    array.append("01");
+    // token
+    QByteArray token = QString(TOKEN).toUtf8();
+    array.append(token.toHex());
+    //Long_audio
+    array.append("00");
+    // Device_token[8]:扫码绑定传过来的笔端token，如果非扫码绑定请写成8个0
+    array.append("0000000000000000");
+    //QString name = QString("背夹 c1 pro");
+
+    array.append("0de8838ce5a4b92063312070726f");
+
+    return QByteArray::fromHex(array);
+}
+
+QByteArray BluetoothConnect::GetTimeZone()
+{
+    QByteArray array;
+    array.append("01");
+    array.append("04");
+    array.append("00");
+    QDateTime currentDate = QDateTime::currentDateTimeUtc();
+    uint timestamp = currentDate.toTime_t();
+
+    QTimeZone systemTimeZone = QTimeZone::systemTimeZone();
+    quint32 systemOffset = systemTimeZone.offsetFromUtc(QDateTime::currentDateTime());
+    quint8 timezone = quint8(systemOffset/3600);
+
+    timestamp -= timezone * 3600;
+    qDebug() << timestamp << timezone;
+
+    QByteArray offsetByte(reinterpret_cast<const char*>(&timestamp),sizeof(timestamp));
+    array.append(offsetByte.toHex());
+    QByteArray timezoneByte(reinterpret_cast<const char*>(&timezone),sizeof(timezone));
+    array.append(timezoneByte.toHex());
+    qDebug()<<array;
+    return QByteArray::fromHex(array);
+}
+
+void BluetoothConnect::ReceiveCmd(QByteArray data)
+{
+    if(data.size() < 3)
+        return;
+    int cmd = int(((data[2] & 0xFF) << 8) + ((data[1] & 0xFF) << 0));
+    QByteArray param = data.mid(3);
+    qDebug()<<"ggy cmd:"<<cmd << data.toHex();
+    switch(cmd)
+    {
+    case 1:
+        //第三次握手：同步时区
+        emit sigDebugLog(QString::fromLocal8Bit("第三次握手信息发送:"));
+        sendCmd(GetTimeZone());
+        break;
+    case 2:
+        //第二次握手：发token
+        emit sigDebugLog(QString::fromLocal8Bit("第二次握手信息发送:"));
+        sendCmd(GetToken());
+        break;
+    case 3:
+        break;
+    case 4:
+        break;
+    case 15:
+        //仓上按键唤醒类型
+        break;
+    case 20:
+        //开始录音
+        //ParserStartRecordingParam(param);
+        break;
+    case 23:
+        //结束录音
+        //ParserEndRecordingParam(param);
+        break;
+    default:
+        break;
     }
 }
 
@@ -166,6 +259,9 @@ void BluetoothConnect::onDescriptorWritten(const QLowEnergyDescriptor &d, const 
 {
     //描述符写入成功，启用通知
     emit sigDebugLog("Descriptor Written" + value);
+
+    //emit sigDebugLog(QString::fromLocal8Bit("第一次握手信息发送:"));
+    //sendCmd(QByteArray::fromHex("010100010100"));
 }
 
 void BluetoothConnect::onCharacteristicRead(const QLowEnergyCharacteristic &info,
@@ -173,13 +269,17 @@ void BluetoothConnect::onCharacteristicRead(const QLowEnergyCharacteristic &info
 {
     int len = value.size();
     emit sigDebugLog(info.uuid().toString() + "Characteristic Read:" /*+ QString::number(len) */+ value.toHex(' '));
+
+    //emit sigDebugLog(info.uuid().toString() + "writeDescriptor:010100010100");
+    //m_service->writeDescriptor(m_descriptor, QByteArray::fromHex("010100010100"));
+    //sendCmd(QByteArray::fromHex("010100010100"));
 }
 
 void BluetoothConnect::onDescriptorRead(const QLowEnergyDescriptor &info,
                                         const QByteArray &value)
 {
     int len = value.size();
-    emit sigDebugLog(info.uuid().toString() + "Descriptor Read:" /*+ QString::number(len) */+ value.toHex(' '));
+    emit sigDebugLog(info.uuid().toString() + "Descriptor Read:" /*+ QString::number(len) */+ value.toHex(' '));    
 }
 void BluetoothConnect::sendCmd(const QByteArray &data)
 {

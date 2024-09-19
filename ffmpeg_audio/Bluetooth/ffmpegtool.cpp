@@ -1,4 +1,4 @@
-#include "ffmpegtool.h"
+﻿#include "ffmpegtool.h"
 
 #include <QDebug>
 #include <QFile>
@@ -92,7 +92,7 @@ void FFmpegTool::ffmpeg()
 
     //
     AVChannelLayout outChanLayout = codecCtx->ch_layout;//声道布局
-    enum AVSampleFormat outSampleFmt = AV_SAMPLE_FMT_S16;//多少位，有无符号，大端小端
+    //enum AVSampleFormat outSampleFmt = AV_SAMPLE_FMT_S16;//多少位，有无符号，大端小端
     int outSampleRate = codecCtx->sample_rate;//采样率
     int outNbSample = codecCtx->frame_size;//采样数量
     if(outNbSample <= 0)
@@ -100,7 +100,7 @@ void FFmpegTool::ffmpeg()
     int outChannels = outChanLayout.nb_channels;//声道数量
 
     //输出缓冲区大小
-    int outBufferSize = av_samples_get_buffer_size(NULL, outChannels, outNbSample,outSampleFmt, 1);
+    int outBufferSize = av_samples_get_buffer_size(NULL, outChannels, outNbSample,AV_SAMPLE_FMT_S16, 1);
     //分配输出缓冲区空间
     unsigned char *outBuffer = (unsigned char*)av_malloc(MAX_AUDIO_FRAME_SIZE * outChannels);
 

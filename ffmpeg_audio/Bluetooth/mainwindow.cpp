@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 #include "globalmessage.h"
@@ -26,6 +26,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButton_3, &QPushButton::clicked, this, [this](){
         mAudioPlayer->Play();
     });
+    connect(ui->pushButton_5, &QPushButton::clicked, this, [this](){
+        mAudioPlayer->Pause();
+    });
+    connect(ui->pushButton_6, &QPushButton::clicked, this, [this](){
+        mAudioPlayer->fastForward();
+    });
+    connect(mAudioPlayer->audio, &QAudioOutput::notify, this, [this](){
+        int a = mAudioPlayer->audio->elapsedUSecs()%1000000;
+        a = a/1000;
+        int b = mAudioPlayer->audio->elapsedUSecs()/1000000;
+        ui->label->setText(QString::number(b) + "s " + QString::number(a)+"ms" );
+    });
+
 
     FFmpegTool *ffmpegTool = new FFmpegTool;
     connect(ui->pushButton_4, &QPushButton::clicked, this, [ffmpegTool](){
