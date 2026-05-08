@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <QLowEnergyController>
+#include <QFile>
 
 class BluetoothData;
 
@@ -16,7 +17,7 @@ class BluetoothConnect : public QObject
 
     QLowEnergyService *m_service;
 
-    QLowEnergyCharacteristic m_character;
+    QLowEnergyCharacteristic m_writeCharacteristic;
 
     friend BluetoothData;
 public:
@@ -43,11 +44,28 @@ private:
 
     void sendCmd(const QByteArray &data);
 
+    void ParserReceiveData(QByteArray data);
+    void ParserStartRecordingParam(QByteArray data);
+    void ParserEndRecordingParam(QByteArray data);
     void ReceiveCmd(QByteArray data);
+    void ReceiveVoice(QByteArray data);
     QByteArray GetToken();
     QByteArray GetTimeZone();
+
+    void RequestVoiceData(QByteArray sessionId, quint32 start);
+    void OpusSaveOggHeader();
+
 signals:
     void sigDebugLog(QString);
+
+private:
+    QLowEnergyDescriptor  m_descriptor;
+    QByteArray m_tmpArray;
+    quint32 m_nVoicefileSize = 0;
+    quint32 m_nVoiceByteoffset = 0;
+    QFile *m_pFile;
+    quint32 serial_number = 0x2;
+    quint32 OGG_FILE_ID = 0x0;
 };
 
 #endif // BLUETOOTHCONNECT_H

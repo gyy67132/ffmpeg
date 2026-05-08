@@ -46,8 +46,8 @@ void fill_audio(void *para, uint8_t *stream, int len) {
 }
 
 
-int main1(int argc, char **argv) {
-    const char *src_name = "../plum.mp3";//"output.opus";
+int mainy(int argc, char **argv) {
+    const char *src_name = "output.wav";//"output.opus";
     if (argc > 1) {
         src_name = argv[1];
     }
@@ -202,7 +202,7 @@ int main1(int argc, char **argv) {
 }
 
 
-int main2(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
@@ -284,7 +284,7 @@ int main3()
 
 
 
-int main(int argc, char *argv[])
+int main4(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     MainWindow w;

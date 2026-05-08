@@ -1,4 +1,4 @@
-#ifndef AUDIOPLAYER_H
+﻿#ifndef AUDIOPLAYER_H
 #define AUDIOPLAYER_H
 
 #include <QAudioOutput>
@@ -16,7 +16,13 @@ public:
     explicit AudioPlayer(QObject *parent = nullptr);
 
     void Play();
+    void Pause();
+    void fastForward();
+
+    QAudioOutput* audio;
 signals:
+
+private:
 
 };
 
