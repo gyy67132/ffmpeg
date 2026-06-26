@@ -10,6 +10,8 @@ ffmpeg/RTSP_Client/x64
 ffmpeg/RtpLibrary/x64
 ffmpeg/x64/Debug/*.ilk
 ffmpeg/x64/Debug/*.pdb
+ffmpeg/Plyer_1/x64
+ffmpeg/Player_1/x64
 
 ffmpeg2/.vs
 ffmpeg2/Decode/x64
@@ -22,6 +24,7 @@ ffmpeg2/scrcopy-windows-server/x64
 ffmpeg2/scrcopy-client/x64
 ffmpeg2/DirectX/x64
 ffmpeg2/PlayDemo/x64
+
 
 ffmpeg_audio/Bluetooth/build-Bluetooth-5_15_MSVC-Debug/
 ffmpeg_audio/Bluetooth/build-Bluetooth-Desktop_Qt_5_15_0_MSVC2019_64bit-Debug/
